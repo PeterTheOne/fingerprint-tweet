@@ -11,12 +11,32 @@ $pdo = new PDO('mysql:host=localhost;dbname=' . PDO_DATABASE . ';charset=utf8', 
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
 
-$statuses = $connection->get('search/tweets', array(
-    'q' => 'GPG Fingerprint',
+
+$statement = $pdo->query('SELECT MIN(statusid) as minstatusid, MAX(statusid) as maxstatusid FROM fingerprint');
+$minmax = $statement->fetch();
+
+$statuses = array();
+$statuses1 = $connection->get('search/tweets', array(
+    'q' => 'PGP Fingerprint',
     'result_type' => 'recent',
     'count' => '20',
-    'include_entities' => 'false'
+    'include_entities' => 'false',
+    'since_id' => $minmax->maxstatusid
 ));
+$statuses2 = $connection->get('search/tweets', array(
+    'q' => 'PGP Fingerprint',
+    'result_type' => 'recent',
+    'count' => '20',
+    'include_entities' => 'false',
+    'max_id' => $minmax->minstatusid
+));
+echo '<pre>';
+print_r($statuses1);
+echo '</pre>';
+echo '<pre>';
+print_r($statuses2);
+echo '</pre>';
+$statuses = array_merge($statuses1->statuses, $statuses2->statuses);
 
 $insertStatement = $pdo->prepare('
         INSERT IGNORE INTO fingerprint
@@ -48,7 +68,7 @@ function matchFingerprint($text) {
     return '';
 }
 
-foreach ($statuses->statuses as $status) {
+foreach ($statuses as $status) {
     $fingerprint = matchFingerprint($status->text);
     $createdat = date("Y-m-d H:i:s", strtotime($status->created_at));
     $insertStatement->bindParam(':statusid', $status->id_str);
