@@ -54,7 +54,7 @@ $insertStatement = $pdo->prepare('
     ');
 
 function matchFingerprint($text) {
-    $result = preg_match("@([A-Z0-9]{4} ){7}[A-Z0-9]{4}@", $text, $matches);
+    $result = preg_match("@([A-Z0-9]{4} ){9}[A-Z0-9]{4}@", $text, $matches);
     if ($result === 1) {
         return $matches[0];
     }
