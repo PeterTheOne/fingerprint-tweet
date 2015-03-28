@@ -20,14 +20,16 @@ $statuses1 = $connection->get('search/tweets', array(
     'result_type' => 'recent',
     'count' => '20',
     'include_entities' => 'false',
-    'since_id' => $minmax->maxstatusid
+    'since_id' => $minmax->maxstatusid,
+    'include_rts' => 'false'
 ));
 $statuses2 = $connection->get('search/tweets', array(
     'q' => 'PGP Fingerprint',
     'result_type' => 'recent',
     'count' => '20',
     'include_entities' => 'false',
-    'max_id' => $minmax->minstatusid
+    'max_id' => $minmax->minstatusid,
+    'include_rts' => 'false'
 ));
 $statuses = array_merge($statuses1->statuses, $statuses2->statuses);
 
@@ -53,6 +55,11 @@ $insertStatement = $pdo->prepare('
         )
     ');
 
+function isOldStyleRetweet($text) {
+    $result = preg_match("@^RT(:)? @", $text, $matches);
+    return $result === 1;
+}
+
 function matchFingerprint($text) {
     $result = preg_match("@([A-Z0-9]{4} ){9}[A-Z0-9]{4}@", $text, $matches);
     if ($result === 1) {
@@ -62,6 +69,9 @@ function matchFingerprint($text) {
 }
 
 foreach ($statuses as $status) {
+    if (isOldStyleRetweet($status->text)) {
+        continue;
+    }
     $fingerprint = matchFingerprint($status->text);
     $createdat = date("Y-m-d H:i:s", strtotime($status->created_at));
     $insertStatement->bindParam(':statusid', $status->id_str);
