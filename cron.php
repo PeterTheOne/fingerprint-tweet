@@ -7,7 +7,7 @@ use Abraham\TwitterOAuth\TwitterOAuth;
 
 $connection = new TwitterOAuth(CONSUMER_KEY, CONSUMER_SECRET);
 
-$pdo = new PDO('mysql:host=localhost;dbname=' . PDO_DATABASE . ';charset=utf8', PDO_USERNAME, PDO_PASSWORD);
+$pdo = new PDO('mysql:host=' . PDO_HOST . ';dbname=' . PDO_DATABASE . ';charset=utf8', PDO_USERNAME, PDO_PASSWORD);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
 
