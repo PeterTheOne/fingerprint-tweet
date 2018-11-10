@@ -1,0 +1,18 @@
+RewriteEngine on
+RewriteCond %{HTTPS} off
+RewriteRule .* https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+<IfModule mod_deflate.c>
+	<IfModule mod_filter.c>
+		SetOutputFilter DEFLATE
+		AddOutputFilterByType DEFLATE application/* text/* font/* image/x-icon image/svg+xml
+	</IfModule>
+</IfModule>
+<IfModule mod_headers.c>
+	Header set Content-Security-Policy "default-src 'none'; block-all-mixed-content; form-action 'none'; base-uri 'none'; frame-ancestors 'none';"
+	Header set X-Content-Type-Options nosniff
+	Header set X-Frame-Options deny
+	Header set X-XSS-Protection "1; mode=block"
+	Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+	Header set Referrer-Policy same-origin
+	Header set Feature-Policy "geolocation 'none'; midi 'none'; sync-xhr 'none'; microphone 'none'; camera 'none'; magnetometer 'none'; gyroscope 'none'; speaker 'none'; fullscreen 'none'; payment 'none';"
+</IfModule>
